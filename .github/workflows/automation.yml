@@ -77,6 +77,15 @@ jobs:
           if __name__ == "__main__":
               main()
           EOL
+      
+      - name: Sprawdzenie, czy plik `Time_zone_generation.py` istnieje
+        run: |
+          if [ -f "Time_zone_generation.py" ]; then
+            echo "✅ Plik Time_zone_generation.py istnieje."
+          else
+            echo "❌ Brak pliku Time_zone_generation.py! Sprawdź, czy znajduje się w repozytorium."
+            exit 1
+          fi
 
       - name: Uruchamianie skryptu i przekierowanie wyników do logów
         run: |
