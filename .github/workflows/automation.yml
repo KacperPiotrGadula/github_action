@@ -10,7 +10,7 @@ on:
         description: "Podaj strefę czasową (CEST lub CET)"
         required: true
         type: string
-        default: "CEST"
+        #default: "CEST"
       DATE1:
         description: "Podaj pierwszą datę (format: DD.MM.YYYY)"
         required: true
