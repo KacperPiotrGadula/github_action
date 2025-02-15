@@ -5,6 +5,27 @@ on:
     branches:
       - main
   workflow_dispatch:
+      TIMEZONE:
+        description: "Podaj strefę czasową (CEST lub CET)"
+        required: true
+        type: string
+        default: "CEST"
+      DATE1:
+        description: "Podaj pierwszą datę (format: DD.MM.YYYY)"
+        required: true
+        type: string
+      DATE2:
+        description: "Podaj drugą datę (format: DD.MM.YYYY)"
+        required: true
+        type: string
+      TIME1:
+        description: "Podaj pierwszy czas (format: HH:MM:SS)"
+        required: true
+        type: string
+      TIME2:
+        description: "Podaj drugi czas (format: HH:MM:SS)"
+        required: true
+        type: string
 
 jobs:
   run-script:
