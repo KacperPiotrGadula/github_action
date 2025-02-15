@@ -1,0 +1,55 @@
+name: Run Python Script
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Ustawianie zmiennych środowiskowych
+        env:
+          TIMEZONE: ${{ secrets.TIMEZONE }}
+          DATE1: ${{ secrets.DATE1 }}
+          DATE2: ${{ secrets.DATE2 }}
+          TIME1: ${{ secrets.TIME1 }}
+          TIME2: ${{ secrets.TIME2 }}
+        run: |
+          echo "TIMEZONE=${TIMEZONE}" >> $GITHUB_ENV
+          echo "DATE1=${DATE1}" >> $GITHUB_ENV
+          echo "DATE2=${DATE2}" >> $GITHUB_ENV
+          echo "TIME1=${TIME1}" >> $GITHUB_ENV
+          echo "TIME2=${TIME2}" >> $GITHUB_ENV
+
+      - name: Tworzenie pliku Time_zone_generation.py
+        run: |
+          echo 'import sys' > Time_zone_generation.py
+          echo 'def main():' >> Time_zone_generation.py
+          echo '    timezone = sys.argv[1]' >> Time_zone_generation.py
+          echo '    date1 = sys.argv[2]' >> Time_zone_generation.py
+          echo '    date2 = sys.argv[3]' >> Time_zone_generation.py
+          echo '    time1 = sys.argv[4]' >> Time_zone_generation.py
+          echo '    time2 = sys.argv[5]' >> Time_zone_generation.py
+          echo '' >> Time_zone_generation.py
+          echo '    if timezone not in ["CEST", "CET"]:' >> Time_zone_generation.py
+          echo '        print("Niepoprawna wartość strefy czasowej!")' >> Time_zone_generation.py
+          echo '        sys.exit(1)' >> Time_zone_generation.py
+          echo '' >> Time_zone_generation.py
+          echo '    print(f"Strefa czasowa: {timezone}")' >> Time_zone_generation.py
+          echo '    print(f"Data 1: {date1}")' >> Time_zone_generation.py
+          echo '    print(f"Data 2: {date2}")' >> Time_zone_generation.py
+          echo '    print(f"Czas 1: {time1}")' >> Time_zone_generation.py
+          echo '    print(f"Czas 2: {time2}")' >> Time_zone_generation.py
+          echo '' >> Time_zone_generation.py
+          echo 'if __name__ == "__main__":' >> Time_zone_generation.py
+          echo '    main()' >> Time_zone_generation.py
+
+      - name: Uruchamianie skryptu
+        run: python3 Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
