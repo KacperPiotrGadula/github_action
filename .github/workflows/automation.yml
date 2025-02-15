@@ -87,9 +87,18 @@ jobs:
             exit 1
           fi
 
+      - name: Sprawdzenie zawartości skryptu przed uruchomieniem
+        run: cat Time_zone_generation.py
+
       - name: Uruchamianie skryptu i przekierowanie wyników do logów
         run: |
           python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
 
       - name: Wypisanie wyników skryptu w logach GitHub Actions
         run: cat output.log
+
+      - name: Uruchamianie skryptu i zapis wyników
+        run: |
+          python3 -u Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
+          echo "✅ Skrypt został wykonany. Oczekiwane wyniki poniżej:"
+          cat output.log
