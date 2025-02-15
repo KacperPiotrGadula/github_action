@@ -51,39 +51,14 @@ jobs:
           echo "DATE2=$DATE2"
           echo "TIME1=$TIME1"
           echo "TIME2=$TIME2"
-
-      - name: Tworzenie pliku Time_zone_generation.py
-        run: |
-          cat <<EOL > Time_zone_generation.py
-          import sys
-
-          def main():
-              timezone = sys.argv[1]
-              date1 = sys.argv[2]
-              date2 = sys.argv[3]
-              time1 = sys.argv[4]
-              time2 = sys.argv[5]
-
-              if timezone not in ["CEST", "CET"]:
-                  print("Niepoprawna wartość strefy czasowej!")
-                  sys.exit(1)
-
-              print(f"Strefa czasowa: {timezone}")
-              print(f"Data 1: {date1}")
-              print(f"Data 2: {date2}")
-              print(f"Czas 1: {time1}")
-              print(f"Czas 2: {time2}")
-
-          if __name__ == "__main__":
-              main()
-          EOL
       
       - name: Sprawdzenie, czy plik `Time_zone_generation.py` istnieje
         run: |
+          ls -la
           if [ -f "Time_zone_generation.py" ]; then
-            echo "✅ Plik Time_zone_generation.py istnieje."
+            echo "✅ Plik Time_zone_generation.py został znaleziony."
           else
-            echo "❌ Brak pliku Time_zone_generation.py! Sprawdź, czy znajduje się w repozytorium."
+            echo "❌ Brak pliku Time_zone_generation.py! Sprawdź jego lokalizację w repozytorium."
             exit 1
           fi
 
