@@ -1,30 +1,30 @@
 name: Run Python Script
 
 on:
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
   workflow_dispatch:
     inputs:
       TIMEZONE:
-        description: "Podaj strefę czasową (CEST lub CET)"
+        description: "Enter the time zone (CEST or CET)"
         required: true
         type: string
         #default: "CEST"
       DATE1:
-        description: "Podaj pierwszą datę (format: DD.MM.YYYY)"
+        description: "Enter the first date (format: DD.MM.YYYY)"
         required: true
         type: string
       DATE2:
-        description: "Podaj drugą datę (format: DD.MM.YYYY)"
+        description: "Enter the second date (format: DD.MM.YYYY)"
         required: true
         type: string
       TIME1:
-        description: "Podaj pierwszy czas (format: HH:MM)"
+        description: "Enter the first time (format: HH:MM)"
         required: true
         type: string
       TIME2:
-        description: "Podaj drugi czas (format: HH:MM)"
+        description: "Enter the second time (format: HH:MM)"
         required: true
         type: string
 
@@ -36,44 +36,30 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Ustawianie zmiennych środowiskowych
+      - name: Setting environment variables
         run: |
           echo "TIMEZONE=${{ inputs.TIMEZONE }}" >> $GITHUB_ENV
           echo "DATE1=${{ inputs.DATE1 }}" >> $GITHUB_ENV
           echo "DATE2=${{ inputs.DATE2 }}" >> $GITHUB_ENV
           echo "TIME1=${{ inputs.TIME1 }}" >> $GITHUB_ENV
           echo "TIME2=${{ inputs.TIME2 }}" >> $GITHUB_ENV
-
-      - name: Wypisanie zmiennych (DEBUG)
-        run: |
-          echo "TIMEZONE=$TIMEZONE"
-          echo "DATE1=$DATE1"
-          echo "DATE2=$DATE2"
-          echo "TIME1=$TIME1"
-          echo "TIME2=$TIME2"
       
-      - name: Sprawdzenie, czy plik `Time_zone_generation.py` istnieje
+      - name: Checking whether the file `Time_zone_generation.py` exists
         run: |
           ls -la
           if [ -f "Time_zone_generation.py" ]; then
-            echo "✅ Plik Time_zone_generation.py został znaleziony."
+            echo "✅ The file Time_zone_generation.py was found."
           else
-            echo "❌ Brak pliku Time_zone_generation.py! Sprawdź jego lokalizację w repozytorium."
+            echo "❌ Time_zone_generation.py file is missing! Check its location in the repository."
             exit 1
           fi
 
-      - name: Sprawdzenie zawartości skryptu przed uruchomieniem
-        run: cat Time_zone_generation.py
+      #- name: Checking the contents of the script before running
+      #  run: cat Time_zone_generation.py
 
-      - name: Uruchamianie skryptu i przekierowanie wyników do logów
+      - name: Running the script and redirecting the results to the logs
         run: |
           python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
 
-      - name: Wypisanie wyników skryptu w logach GitHub Actions
+      - name: Writing out the script results in the GitHub Actions logs
         run: cat output.log
-
-      - name: Uruchamianie skryptu i zapis wyników
-        run: |
-          python3 -u Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
-          echo "✅ Skrypt został wykonany. Oczekiwane wyniki poniżej:"
-          cat output.log
