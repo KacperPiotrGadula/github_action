@@ -1,15 +1,12 @@
 from datetime import datetime, timedelta
+import sys
 
-# Pobranie strefy czasowej
-time_zone = input("Podaj strefę czasową (CEST lub CET): ")
-
-# Pobranie daty startowej i końcowej
-start_date_banner = input("Podaj datę startową (DD.MM.YYYY): ")
-end_date_banner = input("Podaj datę końcową (DD.MM.YYYY): ")
-
-# Pobranie godziny startu i zakończenia
-start_time = input("Podaj godzinę startu (HH:MM): ")
-end_time = input("Podaj godzinę zakończenia (HH:MM): ")
+# Pobranie argumentów z GitHub Actions
+time_zone = sys.argv[1]
+start_date_banner = sys.argv[2]
+end_date_banner = sys.argv[3]
+start_time = sys.argv[4]
+end_time = sys.argv[5]
 
 # Konwersja dat na obiekty datetime
 start_date = datetime.strptime(start_date_banner, "%d.%m.%Y")
