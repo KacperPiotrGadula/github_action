@@ -89,7 +89,7 @@ jobs:
 
       - name: Uruchamianie skryptu i przekierowanie wyników do logów
         run: |
-          python3 Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
+          python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2" | tee output.log
 
       - name: Wypisanie wyników skryptu w logach GitHub Actions
         run: cat output.log
