@@ -5,6 +5,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
       TIMEZONE:
         description: "Podaj strefę czasową (CEST lub CET)"
         required: true
