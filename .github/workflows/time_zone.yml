@@ -72,7 +72,6 @@ jobs:
           python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
 
 name: Build Communication
-
 on:
   workflow_dispatch:
     inputs:
@@ -100,11 +99,3 @@ on:
         description: "Enter the reason and short description"
         required: true
         type: string
-
-jobs:
-  run-script:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
