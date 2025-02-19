@@ -1,4 +1,4 @@
-name: Run Python Script
+name: Build Banner
 
 on:
   #push:
@@ -70,3 +70,41 @@ jobs:
       - name: Running the script and redirecting the results to the logs
         run: |
           python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
+
+name: Build Communication
+
+on:
+  workflow_dispatch:
+    inputs:
+      Central_Application:
+        description: "Enter the central application"
+        required: true
+        type: string
+      Version:
+        description: "Enter the version"
+        required: true
+        type: string
+      Date:
+        description: "Enter the date"
+        required: true
+        type: string
+      Downtime:
+        description: "Enter the downtime"
+        required: true
+        type: string
+      Affected_markets_or_regions:
+        description: "Enter the affected markets or regions"
+        required: true
+        type: string
+      Reason_and_short_description:
+        description: "Enter the reason and short description"
+        required: true
+        type: string
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
