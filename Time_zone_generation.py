@@ -1,6 +1,7 @@
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 import calendar
+import sys
 
 # Interactive input from console
 time_zone = sys.argv[1]
