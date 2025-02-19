@@ -1,110 +1,108 @@
+from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
-import sys
+import calendar
 
-# Downloading arguments from GitHub Actions
+# Interactive input from console
 time_zone = sys.argv[1]
 start_date_banner = sys.argv[2]
 end_date_banner = sys.argv[3]
 start_time = sys.argv[4]
 end_time = sys.argv[5]
 
-# Converting dates to datetime objects
-start_date = datetime.strptime(start_date_banner, "%d.%m.%Y")
-end_date = datetime.strptime(end_date_banner, "%d.%m.%Y")
-start_time_dt = datetime.strptime(start_time, "%H:%M")
+# Timezone definitions
+TIMEZONE_MAP = {
+    "CEST": ZoneInfo("Europe/Warsaw"),
+    "CET": ZoneInfo("Europe/Warsaw"),
+    "AMERICA": ZoneInfo("America/New_York"),
+    "CHINA": ZoneInfo("Asia/Shanghai"),
+    "UTC": ZoneInfo("UTC")
+}
 
-# Handling the special case for the end time '24:00'
+# Validation of time zone
+if time_zone not in TIMEZONE_MAP:
+    print(f"Unknown time zone: {time_zone}")
+    exit(1)
+
+# Parsing datetime with timezone
+def parse_datetime(date_str, time_str, tz):
+    dt = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M").replace(tzinfo=tz)
+    return dt
+
+start_datetime = parse_datetime(start_date_banner, start_time, TIMEZONE_MAP[time_zone])
+
 if end_time == "24:00":
-    end_time_dt = datetime.strptime("00:00", "%H:%M") + timedelta(days=1)
-    end_datetime = datetime.combine(end_date, end_time_dt.time())
-    end_time_display = "24:00"
+    end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]) + timedelta(days=1)
 else:
-    end_time_dt = datetime.strptime(end_time, "%H:%M")
-    end_datetime = datetime.combine(end_date, end_time_dt.time())
-    end_time_display = end_time
-
-# Combining date and time
-start_datetime = datetime.combine(start_date, start_time_dt.time())
+    end_datetime = parse_datetime(end_date_banner, end_time, TIMEZONE_MAP[time_zone])
 
 # Checking whether the time interval exceeds midnight
-if end_datetime <= start_datetime and start_date == end_date:
+if end_datetime <= start_datetime:
     end_datetime += timedelta(days=1)
 
-# Calculating UTC time
-if time_zone == "CEST":
-    start_time_UTC = start_datetime - timedelta(hours=2)
-    end_time_UTC = end_datetime - timedelta(hours=2)
-elif time_zone == "CET":
-    start_time_UTC = start_datetime - timedelta(hours=1)
-    end_time_UTC = end_datetime - timedelta(hours=1)
-else:
-    print("Unknown time zone!")
-    exit()
+# Converting to UTC and other time zones
+def convert_timezones(start_dt, end_dt, tz):
+    start = start_dt.astimezone(tz)
+    end = end_dt.astimezone(tz)
+    if end <= start and start.date() == end.date():
+        end += timedelta(days=1)
+    return start, end
+
+start_time_UTC, end_time_UTC = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
+start_time_AMERICA, end_time_AMERICA = convert_timezones(start_time_UTC, end_time_UTC, TIMEZONE_MAP["AMERICA"])
+start_time_CHINA, end_time_CHINA = convert_timezones(start_time_UTC, end_time_UTC, TIMEZONE_MAP["CHINA"])
+
+# Function to calculate UTC offset
+def get_utc_offset(dt):
+    offset_seconds = dt.utcoffset().total_seconds()
+    hours = int(offset_seconds // 3600)
+    sign = "+" if hours >= 0 else "-"
+    return f"UTC{sign}{abs(hours)}"
+
+america_timezone_str = f"{start_time_AMERICA.strftime('%Z')}"
+china_timezone_str = f"{start_time_CHINA.strftime('%Z')}"
+
+def format_date_with_day(dt):
+    day_name = calendar.day_name[dt.weekday()]
+    return dt.strftime(f"%d.%m.%Y ({day_name})")
 
 # Formatting the results
 start_time_str = start_datetime.strftime("%H:%M")
-end_time_str = end_time_display
-start_date_banner_str = start_datetime.strftime("%d.%m.%Y")
-end_date_banner_str = end_datetime.strftime("%d.%m.%Y")
+end_time_str = "24:00" if end_time == "24:00" else end_datetime.strftime("%H:%M")
+start_date_banner_str = format_date_with_day(start_datetime)
+end_date_banner_str = format_date_with_day(end_datetime)
+
 start_time_UTC_str = start_time_UTC.strftime("%H:%M")
 end_time_UTC_str = end_time_UTC.strftime("%H:%M")
-start_date_banner_UTC = start_time_UTC.strftime("%d.%m.%Y")
-end_date_banner_UTC = end_time_UTC.strftime("%d.%m.%Y")
+start_date_banner_UTC = format_date_with_day(start_time_UTC)
+end_date_banner_UTC = format_date_with_day(end_time_UTC)
 
-# Correction of end date for '24:00' hour
-if end_time_display == "24:00":
-    end_date_banner_UTC = (end_datetime - timedelta(days=1)).strftime("%d.%m.%Y")
+start_time_AMERICA_str = start_time_AMERICA.strftime("%I:%M %p")
+end_time_AMERICA_str = end_time_AMERICA.strftime("%I:%M %p")
+start_date_banner_AMERICA = format_date_with_day(start_time_AMERICA)
+end_date_banner_AMERICA = format_date_with_day(end_time_AMERICA)
+
+start_time_CHINA_str = start_time_CHINA.strftime("%I:%M %p")
+end_time_CHINA_str = end_time_CHINA.strftime("%I:%M %p")
+start_date_banner_CHINA = format_date_with_day(start_time_CHINA)
+end_date_banner_CHINA = format_date_with_day(end_time_CHINA)
 
 # Display of results
 print(f"EMEA:")
-if start_date_banner == end_date_banner:
-    if start_date_banner_str == end_date_banner_UTC:
-        if start_date_banner == start_date_banner_UTC:
-            print(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone} "
-                f"({end_date_banner_UTC}, {start_time_UTC_str} - {end_time_UTC_str} UTC)")
-        else:
-            print(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone} "
-                f"({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
+if start_date_banner_str == end_date_banner_UTC:
+    print(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone} "
+      f"({start_date_banner_UTC} {start_time_UTC_str}  - {end_time_UTC_str} UTC)")
 else:
-    print(f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_str} {time_zone} "
-          f"({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
+    print(f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_UTC} {time_zone}" f" ({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
 
-# Calculating the time zone for America and China
-start_time_AMERICA = start_time_UTC - timedelta(hours=4)
-end_time_AMERICA = end_time_UTC - timedelta(hours=4)
-start_time_CHINA = start_time_UTC + timedelta(hours=8)
-end_time_CHINA = end_time_UTC + timedelta(hours=8)
-
-#  Formatting the results
-start_time_AMERICA_str = start_time_AMERICA.strftime("%H:%M")
-end_time_AMERICA_str = end_time_AMERICA.strftime("%H:%M")
-start_date_banner_AMERICA = start_time_AMERICA.strftime("%d.%m.%Y")
-end_date_banner_AMERICA = end_time_AMERICA.strftime("%d.%m.%Y")
-
-start_time_CHINA_str = start_time_CHINA.strftime("%H:%M")
-end_time_CHINA_str = end_time_CHINA.strftime("%H:%M")
-start_date_banner_CHINA = start_time_CHINA.strftime("%d.%m.%Y")
-end_date_banner_CHINA = end_time_CHINA.strftime("%d.%m.%Y")
-
-# Checking whether the time interval exceeds midnight for America
-if end_time_AMERICA <= start_time_AMERICA and start_date_banner_UTC == end_date_banner_UTC:
-    end_time_AMERICA += timedelta(days=1)
-
-# Checking whether the time interval exceeds midnight for China
-if end_time_CHINA <= start_time_CHINA and start_date_banner_UTC == end_date_banner_UTC:
-    end_time_CHINA += timedelta(days=1)
-
-
-
-# Display of additional time zonesh
-print(f"AMERICA -4 UTC:")
+# Display of additional time zones with proper date adjustments
+print(f"\nAMERICA ({america_timezone_str} ({get_utc_offset(start_time_AMERICA)}), 12h format - A.M./P.M.):")
 if start_date_banner_AMERICA == end_date_banner_AMERICA:
-    print(f"{start_date_banner_AMERICA}, {start_time_AMERICA_str} - {end_time_AMERICA_str} EDT ")
+    print(f"{start_date_banner_AMERICA}, {start_time_AMERICA_str} - {end_time_AMERICA_str} {america_timezone_str}")
 else:
-    print(f"{start_time_AMERICA_str} {start_date_banner_AMERICA} - {end_time_AMERICA_str} {end_date_banner_AMERICA} EDT ")
+    print(f"{start_time_AMERICA_str} {start_date_banner_AMERICA} - {end_time_AMERICA_str} {end_date_banner_AMERICA} {america_timezone_str}")
 
-print(f"CHINA +8 UTC:")
+print(f"\nCHINA ({china_timezone_str} ({get_utc_offset(start_time_CHINA)}), 12h format - A.M./P.M.):")
 if start_date_banner_CHINA == end_date_banner_CHINA:
-    print(f"{start_date_banner_CHINA}, {start_time_CHINA_str} - {end_time_CHINA_str} CST ")
+    print(f"{start_date_banner_CHINA}, {start_time_CHINA_str} - {end_time_CHINA_str} {china_timezone_str}")
 else:
-    print(f"{start_time_CHINA_str} {start_date_banner_CHINA} - {end_time_CHINA_str} {end_date_banner_CHINA} CST ")
+    print(f"{start_time_CHINA_str} {start_date_banner_CHINA} - {end_time_CHINA_str} {end_date_banner_CHINA} {china_timezone_str}")
