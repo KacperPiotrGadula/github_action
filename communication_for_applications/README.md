@@ -1,4 +1,4 @@
-# 📢 Communication for Applications Script
+# 📢 Communication for Applications
 
 ---
 
