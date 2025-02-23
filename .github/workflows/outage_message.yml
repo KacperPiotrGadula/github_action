@@ -91,7 +91,7 @@ jobs:
             communication_for_applications-${{ hashFiles('generate_output.py') }}
 
       - name: Upload TXT file as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: communication_for_applications-${{ github.run_id }}
           path: communication_for_applications.txt
