@@ -74,11 +74,11 @@ jobs:
       - name: Cache output file
         uses: actions/cache@v4
         with:
-          path: output_benner.txt
-          key: output-banner${{ hashFiles('output_benner.txt') }}-${{ github.run_id }}
+          path: output_banner.txt
+          key: output-banner${{ hashFiles('output_banner.txt') }}-${{ github.run_id }}
 
       - name: Upload output file as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: output_benner-${{ github.run_id }}
-          path: output_benner
+          name: output_banner-${{ github.run_id }}
+          path: output_banner
