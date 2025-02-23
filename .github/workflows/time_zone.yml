@@ -75,7 +75,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: output_benner.txt
-          key: output-summary${{ hashFiles('output_benner.txt') }}-${{ github.run_id }}
+          key: output-benner${{ hashFiles('output_benner.txt') }}-${{ github.run_id }}
 
       - name: Upload output file as artifact
         uses: actions/upload-artifact@v4
