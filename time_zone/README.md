@@ -36,7 +36,7 @@ python Time_zone_generation.py <TIMEZONE> <START_DATE> <END_DATE> <START_TIME> <
 
 ## 📅 Example
 
-python Time_zone_generation.py CEST 21.02.2024 22.02.2024 14:00 24:00
+python Time_zone_generation.py ``CEST 21.02.2024 22.02.2024 14:00 24:00``
 
 # 📝 Input Parameters
 
@@ -52,12 +52,12 @@ python Time_zone_generation.py CEST 21.02.2024 22.02.2024 14:00 24:00
 
 # 🖨 Sample Output (output_banner.txt)
 
-EMEA:
+EMEA:  
 21.02.2024 (Wednesday), 14:00 - 24:00 CEST (21.02.2024 (Wednesday) 13:00 - 23:00 UTC)
 
-AMERICA (EST (UTC-5), 12h format - A.M./P.M.):
+AMERICA (EST (UTC-5), 12h format - A.M./P.M.):  
 21.02.2024 (Wednesday), 08:00 AM - 06:00 PM EST
 
-CHINA (CST (UTC+8), 12h format - A.M./P.M.):
+CHINA (CST (UTC+8), 12h format - A.M./P.M.):  
 22.02.2024 (Thursday), 09:00 PM - 07:00 AM CST
 
