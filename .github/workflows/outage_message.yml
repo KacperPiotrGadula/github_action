@@ -3,27 +3,38 @@ name: Build Communication
 on:
   workflow_dispatch:
     inputs:
-      Central_Application:
+      CENTRAL_APPLICATION:
         description: "Enter the central application"
         required: true
-        type: string
-      Version:
+        type: choice
+        options:
+          - AstroSync 
+          - NeoCore
+      VERSION:
         description: "Enter the version"
         required: true
         type: string
-      Date:
+      DATE:
         description: "Enter the date"
         required: true
         type: string
-      Downtime:
-        description: "Enter the downtime"
+      DOWNTIME:
+        description: "Downtime is expected?"
         required: true
+        default: 'true'
+        type: choice
+        options:
+          - true
+          - false
+      CUSTOM_DOWNTIME:
+        description: 'If you selected ‘true’, Enter the time period below in the input'
+        required: false
         type: string
-      Affected_markets_or_regions:
+      AFFECTED_MARKETS:
         description: "Enter the affected markets or regions"
         required: true
         type: string
-      Reason_and_short_description:
+      REASON_DESCRIPTION:
         description: "Enter the reason and short description"
         required: true
         type: string
@@ -35,3 +46,52 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+    
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install rich
+      
+      - name: Setting environment variables
+        run: |
+          echo "CENTRAL_APPLICATION=${{ inputs.CENTRAL_APPLICATION }}" >> $GITHUB_ENV
+          echo "VERSION=${{ inputs.VERSION }}" >> $GITHUB_ENV
+          echo "DATE=${{ inputs.DATE }}" >> $GITHUB_ENV
+          echo "AFFECTED_MARKETS=${{ inputs.AFFECTED_MARKETS }}" >> $GITHUB_ENV
+          echo "REASON_DESCRIPTION=${{ inputs.REASON_DESCRIPTION }}" >> $GITHUB_ENV
+      
+      - name: 🚀 Downtime is expected
+        if: ${{ github.event.inputs.DOWNTIME == 'true' }}
+        run:  echo "DOWNTIME= Yes -> ${{ inputs.CUSTOM_DOWNTIME }}" >> $GITHUB_ENV
+
+      - name: 🚀 Downtime is not expected
+        if: ${{ github.event.inputs.DOWNTIME == 'false' }}
+        run:  echo "DOWNTIME= Not expected" >> $GITHUB_ENV
+
+      - name: Checking whether the file `Communication.py` exists
+        run: |
+          ls -la
+          if [ -f "${{ github.workspace }}/communication_for_applications/Communication.py" ]; then
+            echo "✅ The file Communication.py was found."
+          else
+            echo "❌ Communication.py file is missing! Check its location in the repository."
+            exit 1
+          fi
+
+      - name: Running the script and redirecting the results to the logs
+        run: |
+          python ${{ github.workspace }}/communication_for_applications/Communication.py "$CENTRAL_APPLICATION" "$VERSION" "$DATE" "$DOWNTIME" "$AFFECTED_MARKETS" "$REASON_DESCRIPTION"
+      
+      - name: Save output file in cache (invalidate on each run)
+        uses: actions/cache@v4
+        with:
+          path: communication_for_applications.txt
+          key: communication_for_applications${{ hashFiles('generate_output.py') }}-${{ github.run_id }}
+          restore-keys: |
+            communication_for_applications-${{ hashFiles('generate_output.py') }}
+
+      - name: Upload TXT file as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: communication_for_applications-${{ github.run_id }}
+          path: communication_for_applications.txt
