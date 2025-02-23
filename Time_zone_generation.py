@@ -116,7 +116,7 @@ def generate_output():
     # Scal całość do jednej zmiennej
     output_content = "\n".join(output_lines)
 
-    with open("output_summary.txt", "w") as file:
+    with open("output_banner.txt", "w") as file:
         file.write(output_content)
 
     return output_content
