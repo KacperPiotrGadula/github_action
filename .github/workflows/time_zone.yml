@@ -75,7 +75,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: output_banner.txt
-          key: output-banner${{ hashFiles('output_banner.txt') }}-${{ github.run_id }}
+          key: output-banner-${{ github.run_id }}
 
       - name: Upload output file as artifact
         uses: actions/upload-artifact@v4
