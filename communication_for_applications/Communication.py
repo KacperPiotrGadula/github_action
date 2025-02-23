@@ -14,7 +14,7 @@ def main():
     
     affected_systems_mapping = {
         "AstroSync": "SigmaFlow",
-        "NeoCore": "OptiNet, DataPulse"
+        "NeoCore": "OptiNet, DataPulse",
     }
     
     if central_application in affected_systems_mapping:
