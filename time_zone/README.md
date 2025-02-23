@@ -31,8 +31,9 @@ pip install backports.zoneinfo
 ```
 
 # 💡 Running the Script
-
+```
 python Time_zone_generation.py <TIMEZONE> <START_DATE> <END_DATE> <START_TIME> <END_TIME>
+```
 
 ## 📅 Example
 
