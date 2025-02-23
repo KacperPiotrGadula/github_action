@@ -70,3 +70,15 @@ jobs:
       - name: Running the script and redirecting the results to the logs
         run: |
           python Time_zone_generation.py "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
+
+      - name: Cache output file
+        uses: actions/cache@v4
+        with:
+          path: output_benner.txt
+          key: output-summary-${{ hashFiles('output_benner.txt') }}-${{ github.run_id }}
+
+      - name: Upload output file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: output_benner-${{ github.run_id }}
+          path: output_benner
