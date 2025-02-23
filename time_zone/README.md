@@ -52,7 +52,7 @@ python Time_zone_generation.py ``CEST 21.02.2024 22.02.2024 14:00 24:00``
 | `END_TIME`   | string | End time in `HH:MM` format (24-hour) or `24:00` for midnight. | `24:00`          |
 
 # 🖨 Sample Output (output_banner.txt)
-
+```
 EMEA:  
 21.02.2024 (Wednesday), 14:00 - 24:00 CEST (21.02.2024 (Wednesday) 13:00 - 23:00 UTC)
 
@@ -61,4 +61,4 @@ AMERICA (EST (UTC-5), 12h format - A.M./P.M.):
 
 CHINA (CST (UTC+8), 12h format - A.M./P.M.):  
 22.02.2024 (Thursday), 09:00 PM - 07:00 AM CST
-
+```
