@@ -51,7 +51,7 @@ python communication_script.py ``AstroSync v1.4.0 2024-02-25 "2 hours" "EU, US" 
 
 
 ---
-# 💾 Output File (communication_for_applications.txt) Content
+# 💾 Output File (communication_for_applications.txt)
 
 ```
 Central Application: AstroSync
