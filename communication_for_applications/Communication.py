@@ -14,7 +14,7 @@ def main():
     
     affected_systems_mapping = {
         "AstroSync": "SigmaFlow",
-        "NeoCore": "OptiNet, DataPulse",
+        "NeoCore": "OptiNet, DataPulse"
     }
     
     if central_application in affected_systems_mapping:
@@ -27,7 +27,7 @@ def main():
     print(f"[bold]Affected markets or regions:[/bold] {affected_markets}")
     
     impact_mapping = {
-        "AstroSync":    "\n• Data synchronization service in multi-system environments. \n"
+        "AstroSync":    "\n• Data synchronization service in multi-system environments. \n",
         "NeoCore":      "\n• Real-time data management core. \n"
     }
 
