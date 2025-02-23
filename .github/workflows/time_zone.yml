@@ -81,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output_banner-${{ github.run_id }}
-          path: output_banner
+          path: output_banner.txt
