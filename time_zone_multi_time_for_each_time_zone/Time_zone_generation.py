@@ -14,8 +14,8 @@ def generate_output():
 
     # Timezone definitions based on workflow requirements
     TIMEZONE_MAP = {
-        "CEST": ZoneInfo("Europe/Warsaw"),
-        "CET": ZoneInfo("Europe/Warsaw"),
+        "EMEA-CEST": ZoneInfo("Europe/Warsaw"),
+        "EMEA-CET": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
         "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
@@ -75,7 +75,11 @@ def generate_output():
             )
 
     # Adjust base timezone logic
-    base_timezone = selected_timezone if selected_region == "EMEA" else selected_region
+    if selected_region == "EMEA":
+        base_timezone = f"EMEA-{selected_timezone}"
+    else:
+        base_timezone = selected_region
+
     start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[base_timezone])
     end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[base_timezone])
 
