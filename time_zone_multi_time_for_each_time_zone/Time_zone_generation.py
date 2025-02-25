@@ -14,7 +14,9 @@ def generate_output():
 
     # Timezone definitions based on workflow requirements
     TIMEZONE_MAP = {
-        "EMEA": ZoneInfo("Europe/Warsaw"),  # Handles CEST/CET based on date
+        "EMEA": ZoneInfo("Europe/Warsaw"),
+        "CEST": ZoneInfo("Europe/Warsaw"),
+        "CET": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
         "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
@@ -25,8 +27,8 @@ def generate_output():
         print(f"Invalid region specified: {selected_region}. Must be EMEA, AMERICA, or CHINA.")
         exit(1)
 
-    if selected_region == "EMEA" and selected_timezone not in ["CEST", "CET"]:
-        print(f"Invalid timezone specified for EMEA: {selected_timezone}. Must be CEST or CET.")
+    if selected_timezone not in ["CEST", "CET"]:
+        print(f"Invalid timezone specified: {selected_timezone}. Must be CEST or CET.")
         exit(1)
 
     def parse_datetime(date_str, time_str, tz):
@@ -46,8 +48,8 @@ def generate_output():
     def format_date_with_day(dt):
         return dt.strftime(f"%d.%m.%Y ({calendar.day_name[dt.weekday()]})")
 
-    def format_region_output(region, start_datetime, end_datetime, time2):
-        region_tz = TIMEZONE_MAP[region]
+    def format_region_output(region, base_tz, start_datetime, end_datetime, time2):
+        region_tz = TIMEZONE_MAP[base_tz] if region == "EMEA" else TIMEZONE_MAP[region]
         start_dt_region, end_dt_region = convert_timezones(start_datetime, end_datetime, region_tz)
         start_dt_utc, end_dt_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
 
@@ -63,31 +65,55 @@ def generate_output():
 
         tz_str = f"{start_dt_region.strftime('%Z')} ({get_utc_offset(start_dt_region)})"
 
-        output_lines.append(f"{region} ({tz_str}, 12h format - A.M./P.M.):")
-        if start_date_str == end_date_str:
+        if region == "EMEA":
+            output_lines.append("EMEA:")
+            if start_date_str == end_date_utc_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_time_str} - {end_time_str} {base_tz} "
+                    f"({start_date_utc_str} {start_time_utc_str} - {end_time_utc_str} UTC)"
+                )
+            else:
+                output_lines.append(
+                    f"{start_time_str} {start_date_str} - {end_time_str} {end_date_utc_str} {base_tz} "
+                    f"({start_time_utc_str} {start_date_utc_str} - {end_time_utc_str} {end_date_utc_str} UTC)"
+                )
+        elif region == "AMERICA":
             output_lines.append(
-                f"{start_date_str}, {start_dt_region.strftime('%I:%M %p')} - {end_dt_region.strftime('%I:%M %p')} {tz_str}"
+                f"\nAMERICA ({tz_str}, 12h format - A.M./P.M.):"
             )
-        else:
+            if start_date_str == end_date_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_dt_region.strftime('%I:%M %p')} - {end_dt_region.strftime('%I:%M %p')} {tz_str}"
+                )
+            else:
+                output_lines.append(
+                    f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
+                )
+        elif region == "CHINA":
             output_lines.append(
-                f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
+                f"\nCHINA ({tz_str}, 12h format - A.M./P.M.):"
             )
+            if start_date_str == end_date_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_dt_region.strftime('%I:%M %p')} - {end_dt_region.strftime('%I:%M %p')} {tz_str}"
+                )
+            else:
+                output_lines.append(
+                    f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
+                )
 
-    # Adjust region usage to ensure proper timezone handling
-    region_key = selected_region
-    if selected_region == "EMEA":
-        region_key = "EMEA"  # Always map to Europe/Warsaw; DST handled by ZoneInfo automatically
-
-    start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[region_key])
-    end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[region_key])
+    # Process only the selected region
+    base_timezone = selected_timezone if selected_region == "EMEA" else selected_region
+    start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[base_timezone])
+    end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[base_timezone])
 
     if time2 == "24:00":
-        end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[region_key]) + timedelta(days=1)
+        end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[base_timezone]) + timedelta(days=1)
 
     if end_datetime <= start_datetime:
         end_datetime += timedelta(days=1)
 
-    format_region_output(region_key, start_datetime, end_datetime, time2)
+    format_region_output(selected_region, base_timezone, start_datetime, end_datetime, time2)
 
     with open("output_banner.txt", "w") as file:
         file.write("\n".join(output_lines))
