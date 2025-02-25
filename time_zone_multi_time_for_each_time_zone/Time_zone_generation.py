@@ -9,13 +9,11 @@ def generate_output():
 
     # Inputs for region, timezone, and time range
     selected_region = sys.argv[1].upper()
-    selected_timezone = sys.argv[2].upper()
-    date1, date2, time1, time2 = sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6]
+    date1, date2, time1, time2 = sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
 
     # Timezone definitions based on workflow requirements
     TIMEZONE_MAP = {
-        "CEST": ZoneInfo("Europe/Warsaw"),
-        "CET": ZoneInfo("Europe/Warsaw"),
+        "EMEA": ZoneInfo("Europe/Warsaw"),  # Automatically handles CEST/CET based on date
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
         "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
@@ -26,12 +24,9 @@ def generate_output():
         print(f"Invalid region specified: {selected_region}. Must be EMEA, AMERICA, or CHINA.")
         exit(1)
 
-    if selected_timezone not in ["CEST", "CET"]:
-        print(f"Invalid timezone specified: {selected_timezone}. Must be CEST or CET.")
-        exit(1)
-
     def parse_datetime(date_str, time_str, tz):
-        return datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M").replace(tzinfo=tz)
+        dt = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M").replace(tzinfo=tz)
+        return dt
 
     def convert_timezones(start_dt, end_dt, tz):
         start, end = start_dt.astimezone(tz), end_dt.astimezone(tz)
@@ -47,8 +42,8 @@ def generate_output():
     def format_date_with_day(dt):
         return dt.strftime(f"%d.%m.%Y ({calendar.day_name[dt.weekday()]})")
 
-    def format_region_output(region, base_tz, start_datetime, end_datetime, time2):
-        region_tz = TIMEZONE_MAP[base_tz] if region == "EMEA" else TIMEZONE_MAP[region]
+    def format_region_output(region, start_datetime, end_datetime, time2):
+        region_tz = TIMEZONE_MAP[region]
         start_dt_region, end_dt_region = convert_timezones(start_datetime, end_datetime, region_tz)
         start_dt_utc, end_dt_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
 
@@ -68,12 +63,12 @@ def generate_output():
             output_lines.append("EMEA:")
             if start_date_str == end_date_utc_str:
                 output_lines.append(
-                    f"{start_date_str}, {start_time_str} - {end_time_str} {base_tz} "
+                    f"{start_date_str}, {start_time_str} - {end_time_str} {tz_str} "
                     f"({start_date_utc_str} {start_time_utc_str} - {end_time_utc_str} UTC)"
                 )
             else:
                 output_lines.append(
-                    f"{start_time_str} {start_date_str} - {end_time_str} {end_date_utc_str} {base_tz} "
+                    f"{start_time_str} {start_date_str} - {end_time_str} {end_date_utc_str} {tz_str} "
                     f"({start_time_utc_str} {start_date_utc_str} - {end_time_utc_str} {end_date_utc_str} UTC)"
                 )
         elif region == "AMERICA":
@@ -101,18 +96,17 @@ def generate_output():
                     f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
                 )
 
-    # Process only the selected region
-    base_timezone = selected_timezone if selected_region == "EMEA" else selected_region
-    start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[base_timezone])
-    end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[base_timezone])
+    # Process only the selected region with automatic DST handling
+    start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[selected_region])
+    end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[selected_region])
 
     if time2 == "24:00":
-        end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[base_timezone]) + timedelta(days=1)
+        end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[selected_region]) + timedelta(days=1)
 
     if end_datetime <= start_datetime:
         end_datetime += timedelta(days=1)
 
-    format_region_output(selected_region, base_timezone, start_datetime, end_datetime, time2)
+    format_region_output(selected_region, start_datetime, end_datetime, time2)
 
     with open("output_banner.txt", "w") as file:
         file.write("\n".join(output_lines))
