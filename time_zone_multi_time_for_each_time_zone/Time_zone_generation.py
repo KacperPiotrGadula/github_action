@@ -7,109 +7,101 @@ def generate_output():
 
     output_lines = []
 
-    # Inputs for EMEA, America, and China
+    # Inputs for EMEA, America, and China (using four variables for each region)
     timezones = [
         (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "EMEA"),
-        (sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], "AMERICA"),
-        (sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], "CHINA")
+        (sys.argv[1], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], "AMERICA"),
+        (sys.argv[1], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], "CHINA")
     ]
 
-    # Timezone definitions
+    # Timezone definitions with dynamic handling for America (EST/EDT) and China (CST)
     TIMEZONE_MAP = {
         "CEST": ZoneInfo("Europe/Warsaw"),
         "CET": ZoneInfo("Europe/Warsaw"),
-        "AMERICA": ZoneInfo("America/New_York"),
-        "CHINA": ZoneInfo("Asia/Shanghai"),
+        "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
+        "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
     }
 
     def parse_datetime(date_str, time_str, tz):
-        dt = datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M").replace(tzinfo=tz)
-        return dt
+        return datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M").replace(tzinfo=tz)
 
     def convert_timezones(start_dt, end_dt, tz):
-        start = start_dt.astimezone(tz)
-        end = end_dt.astimezone(tz)
+        start, end = start_dt.astimezone(tz), end_dt.astimezone(tz)
         if end <= start and start.date() == end.date():
             end += timedelta(days=1)
         return start, end
 
     def get_utc_offset(dt):
-        offset_seconds = dt.utcoffset().total_seconds()
-        hours = int(offset_seconds // 3600)
+        hours = int(dt.utcoffset().total_seconds() // 3600)
         sign = "+" if hours >= 0 else "-"
         return f"UTC{sign}{abs(hours)}"
 
     def format_date_with_day(dt):
-        day_name = calendar.day_name[dt.weekday()]
-        return dt.strftime(f"%d.%m.%Y ({day_name})")
+        return dt.strftime(f"%d.%m.%Y ({calendar.day_name[dt.weekday()]})")
 
-    def format_region_output(region, tz, start_datetime, end_datetime, time2):
-        start_utc, end_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
+    def format_region_output(region, base_tz, start_datetime, end_datetime, time2):
+        """Generate the output lines for a given region following the exact specified format."""
+        region_tz = TIMEZONE_MAP[region] if region in ["AMERICA", "CHINA"] else TIMEZONE_MAP[base_tz]
+        start_dt_region, end_dt_region = convert_timezones(start_datetime, end_datetime, region_tz)
+        start_dt_utc, end_dt_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
+
+        # Extract time and date strings
+        start_time_str = start_dt_region.strftime("%H:%M")
+        end_time_str = "24:00" if time2 == "24:00" else end_dt_region.strftime("%H:%M")
+        start_date_str = format_date_with_day(start_dt_region)
+        end_date_str = format_date_with_day(end_dt_region)
+
+        start_time_utc_str = start_dt_utc.strftime("%H:%M")
+        end_time_utc_str = end_dt_utc.strftime("%H:%M")
+        start_date_utc_str = format_date_with_day(start_dt_utc)
+        end_date_utc_str = format_date_with_day(end_dt_utc)
+
+        tz_str = f"{start_dt_region.strftime('%Z')} ({get_utc_offset(start_dt_region)})"
 
         if region == "EMEA":
-            start_time_str = start_datetime.strftime("%H:%M")
-            end_time_str = "24:00" if time2 == "24:00" else end_datetime.strftime("%H:%M")
-            start_date_banner_str = format_date_with_day(start_datetime)
-            end_date_banner_utc = format_date_with_day(end_utc)
-            start_time_utc_str = start_utc.strftime("%H:%M")
-            end_time_utc_str = end_utc.strftime("%H:%M")
-
-            if start_date_banner_str == end_date_banner_utc:
-                return [
-                    f"{region}:",
-                    f"{start_date_banner_str}, {start_time_str} - {end_time_str} {tz} "
-                    f"({end_date_banner_utc} {start_time_utc_str} - {end_time_utc_str} UTC)"
-                ]
+            output_lines.append("EMEA:")
+            if start_date_str == end_date_utc_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_time_str} - {end_time_str} {base_tz} "
+                    f"({start_date_utc_str} {start_time_utc_str} - {end_time_utc_str} UTC)"
+                )
             else:
-                return [
-                    f"{region}:",
-                    f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_utc} {tz} "
-                    f"({start_time_utc_str} {start_date_banner_str} - {end_time_utc_str} {end_date_banner_utc} UTC)"
-                ]
-
+                output_lines.append(
+                    f"{start_time_str} {start_date_str} - {end_time_str} {end_date_utc_str} {base_tz} "
+                    f"({start_time_utc_str} {start_date_utc_str} - {end_time_utc_str} {end_date_utc_str} UTC)"
+                )
         else:
-            start_time_str = start_datetime.strftime("%I:%M %p")
-            end_time_str = end_datetime.strftime("%I:%M %p")
-            start_date_banner_str = format_date_with_day(start_datetime)
-            end_date_banner_str = format_date_with_day(end_datetime)
-            tz_str = f"{start_datetime.strftime('%Z')} ({get_utc_offset(start_datetime)})"
-
-            if start_date_banner_str == end_date_banner_str:
-                return [
-                    f"\n{region} ({tz_str}, 12h format - A.M./P.M.):",
-                    f"{start_date_banner_str}, {start_time_str} - {end_time_str} {start_datetime.strftime('%Z')}"
-                ]
+            output_lines.append(
+                f"\n{region} ({tz_str}, 12h format - A.M./P.M.):"
+            )
+            if start_date_str == end_date_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_dt_region.strftime('%I:%M %p')} - {end_dt_region.strftime('%I:%M %p')} {tz_str}"
+                )
             else:
-                return [
-                    f"\n{region} ({tz_str}, 12h format - A.M./P.M.):",
-                    f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_str} {start_datetime.strftime('%Z')}"
-                ]
+                output_lines.append(
+                    f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
+                )
 
-    # Process each region
+    # Process each region with all four variables
     for tz, date1, date2, time1, time2, region in timezones:
-        if tz not in TIMEZONE_MAP:
-            print(f"Unknown time zone: {tz}")
-            exit(1)
-
-        start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[tz])
-        end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[tz])
+        base_timezone = tz if tz in ["CEST", "CET"] else "CET"  # Default fallback
+        start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[base_timezone])
+        end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[base_timezone])
 
         if time2 == "24:00":
-            end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[tz]) + timedelta(days=1)
+            end_datetime = parse_datetime(date2, "00:00", TIMEZONE_MAP[base_timezone]) + timedelta(days=1)
 
         if end_datetime <= start_datetime:
             end_datetime += timedelta(days=1)
 
-        output_lines.extend(format_region_output(region, tz, start_datetime, end_datetime, time2))
-
-    output_content = "\n".join(output_lines)
+        format_region_output(region, base_timezone, start_datetime, end_datetime, time2)
 
     with open("output_banner.txt", "w") as file:
-        file.write(output_content)
+        file.write("\n".join(output_lines))
 
-    return output_content
+    return "\n".join(output_lines)
 
 if __name__ == "__main__":
-    output_summary = generate_output()
-    print(output_summary)
+    print(generate_output())

@@ -24,10 +24,6 @@ on:
         required: true
         type: string
 
-      AMERICA_TIMEZONE:
-        description: "Enter the time zone for America (e.g., EST, PST)"
-        required: true
-        type: string
       AMERICA_DATE1:
         description: "Enter the first date for America (format: DD.MM.YYYY)"
         required: true
@@ -45,10 +41,6 @@ on:
         required: true
         type: string
 
-      CHINA_TIMEZONE:
-        description: "Enter the time zone for China (e.g., CST)"
-        required: true
-        type: string
       CHINA_DATE1:
         description: "Enter the first date for China (format: DD.MM.YYYY)"
         required: true
@@ -92,13 +84,11 @@ jobs:
           echo "EMEA_TIME1=${{ inputs.EMEA_TIME1 }}" >> $GITHUB_ENV
           echo "EMEA_TIME2=${{ inputs.EMEA_TIME2 }}" >> $GITHUB_ENV
 
-          echo "AMERICA_TIMEZONE=${{ inputs.AMERICA_TIMEZONE }}" >> $GITHUB_ENV
           echo "AMERICA_DATE1=${{ inputs.AMERICA_DATE1 }}" >> $GITHUB_ENV
           echo "AMERICA_DATE2=${{ inputs.AMERICA_DATE2 }}" >> $GITHUB_ENV
           echo "AMERICA_TIME1=${{ inputs.AMERICA_TIME1 }}" >> $GITHUB_ENV
           echo "AMERICA_TIME2=${{ inputs.AMERICA_TIME2 }}" >> $GITHUB_ENV
 
-          echo "CHINA_TIMEZONE=${{ inputs.CHINA_TIMEZONE }}" >> $GITHUB_ENV
           echo "CHINA_DATE1=${{ inputs.CHINA_DATE1 }}" >> $GITHUB_ENV
           echo "CHINA_DATE2=${{ inputs.CHINA_DATE2 }}" >> $GITHUB_ENV
           echo "CHINA_TIME1=${{ inputs.CHINA_TIME1 }}" >> $GITHUB_ENV
@@ -120,11 +110,11 @@ jobs:
 
       - name: Running the script for America
         run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$AMERICA_TIMEZONE" "$AMERICA_DATE1" "$AMERICA_DATE2" "$AMERICA_TIME1" "$AMERICA_TIME2"
+          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$AMERICA_DATE1" "$AMERICA_DATE2" "$AMERICA_TIME1" "$AMERICA_TIME2"
 
       - name: Running the script for China
         run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$CHINA_TIMEZONE" "$CHINA_DATE1" "$CHINA_DATE2" "$CHINA_TIME1" "$CHINA_TIME2"
+          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$CHINA_DATE1" "$CHINA_DATE2" "$CHINA_TIME1" "$CHINA_TIME2"
 
       - name: Cache output file
         uses: actions/cache@v4
