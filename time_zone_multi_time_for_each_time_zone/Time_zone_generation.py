@@ -16,13 +16,12 @@ def generate_output():
     TIMEZONE_MAP = {
         "CEST": ZoneInfo("Europe/Warsaw"),
         "CET": ZoneInfo("Europe/Warsaw"),
-        "EMEA": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
         "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
     }
 
-    # Validate selected region and timezone
+    # Validation of time zone and region
     if selected_region not in ["EMEA", "AMERICA", "CHINA"]:
         print(f"Invalid region specified: {selected_region}. Must be EMEA, AMERICA, or CHINA.")
         exit(1)
@@ -77,9 +76,21 @@ def generate_output():
                     f"{start_time_str} {start_date_str} - {end_time_str} {end_date_utc_str} {base_tz} "
                     f"({start_time_utc_str} {start_date_utc_str} - {end_time_utc_str} {end_date_utc_str} UTC)"
                 )
-        else:
+        elif region == "AMERICA":
             output_lines.append(
-                f"\n{region} ({tz_str}, 12h format - A.M./P.M.):"
+                f"\nAMERICA ({tz_str}, 12h format - A.M./P.M.):"
+            )
+            if start_date_str == end_date_str:
+                output_lines.append(
+                    f"{start_date_str}, {start_dt_region.strftime('%I:%M %p')} - {end_dt_region.strftime('%I:%M %p')} {tz_str}"
+                )
+            else:
+                output_lines.append(
+                    f"{start_dt_region.strftime('%I:%M %p')} {start_date_str} - {end_dt_region.strftime('%I:%M %p')} {end_date_str} {tz_str}"
+                )
+        elif region == "CHINA":
+            output_lines.append(
+                f"\nCHINA ({tz_str}, 12h format - A.M./P.M.):"
             )
             if start_date_str == end_date_str:
                 output_lines.append(
