@@ -67,7 +67,7 @@ jobs:
       - name: Checking whether the file `Time_zone_generation.py` exists
         run: |
           ls -la
-          if [ -f "${{ github.workspace }}/time_zone/Time_zone_generation.py" ]; then
+          if [ -f "${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py" ]; then
             echo "✅ The file Time_zone_generation.py was found."
           else
             echo "❌ Time_zone_generation.py file is missing! Check its location in the repository."
@@ -76,7 +76,7 @@ jobs:
 
       - name: Running the script for selected region and timezone
         run: |
-          python ${{ github.workspace }}/time_zone/Time_zone_generation.py "$REGION" "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
+          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$REGION" "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
 
       - name: Cache output file
         uses: actions/cache@v4
