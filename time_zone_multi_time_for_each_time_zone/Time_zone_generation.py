@@ -7,13 +7,12 @@ def generate_output():
 
     output_lines = []
 
-    # Selected region input (EMEA, AMERICA, CHINA)
+    # Inputs for region, timezone, and time range
     selected_region = sys.argv[1].upper()
+    selected_timezone = sys.argv[2].upper()
+    date1, date2, time1, time2 = sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6]
 
-    # Region-specific inputs (DATE1, DATE2, TIME1, TIME2)
-    date1, date2, time1, time2 = sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
-
-    # Timezone definitions with dynamic handling for America (EST/EDT) and China (CST)
+    # Timezone definitions with dynamic handling
     TIMEZONE_MAP = {
         "CEST": ZoneInfo("Europe/Warsaw"),
         "CET": ZoneInfo("Europe/Warsaw"),
@@ -40,12 +39,10 @@ def generate_output():
         return dt.strftime(f"%d.%m.%Y ({calendar.day_name[dt.weekday()]})")
 
     def format_region_output(region, base_tz, start_datetime, end_datetime, time2):
-        """Generate the output lines for the selected region following the exact specified format."""
-        region_tz = TIMEZONE_MAP[region]
+        region_tz = TIMEZONE_MAP[region] if region in ["AMERICA", "CHINA"] else TIMEZONE_MAP[base_tz]
         start_dt_region, end_dt_region = convert_timezones(start_datetime, end_datetime, region_tz)
         start_dt_utc, end_dt_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
 
-        # Extract time and date strings
         start_time_str = start_dt_region.strftime("%H:%M")
         end_time_str = "24:00" if time2 == "24:00" else end_dt_region.strftime("%H:%M")
         start_date_str = format_date_with_day(start_dt_region)
@@ -84,8 +81,8 @@ def generate_output():
                 )
 
     # Process only the selected region
-    if selected_region in ["EMEA", "AMERICA", "CHINA"]:
-        base_timezone = "CEST" if selected_region == "EMEA" else selected_region
+    if selected_region in ["EMEA", "AMERICA", "CHINA"] and selected_timezone in ["CEST", "CET"]:
+        base_timezone = selected_timezone if selected_region == "EMEA" else selected_region
         start_datetime = parse_datetime(date1, time1, TIMEZONE_MAP[base_timezone])
         end_datetime = parse_datetime(date2, time2, TIMEZONE_MAP[base_timezone])
 
@@ -97,7 +94,7 @@ def generate_output():
 
         format_region_output(selected_region, base_timezone, start_datetime, end_datetime, time2)
     else:
-        output_lines.append("Invalid region specified. Please select from EMEA, AMERICA, CHINA.")
+        output_lines.append("Invalid region or timezone specified. Please select from EMEA, AMERICA, CHINA and CEST/CET.")
 
     with open("output_banner.txt", "w") as file:
         file.write("\n".join(output_lines))

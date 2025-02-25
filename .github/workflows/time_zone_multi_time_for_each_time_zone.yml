@@ -1,4 +1,4 @@
-name: Build Banner with Selected Region
+name: Build Banner with Selected Region and Timezone
 
 on:
   workflow_dispatch:
@@ -11,6 +11,14 @@ on:
           - EMEA
           - AMERICA
           - CHINA
+
+      TIMEZONE:
+        description: "Select the timezone for EMEA (CEST or CET)"
+        required: true
+        type: choice
+        options:
+          - CEST
+          - CET
 
       DATE1:
         description: "Enter the first date (format: DD.MM.YYYY)"
@@ -50,6 +58,7 @@ jobs:
       - name: Setting environment variables
         run: |
           echo "REGION=${{ inputs.REGION }}" >> $GITHUB_ENV
+          echo "TIMEZONE=${{ inputs.TIMEZONE }}" >> $GITHUB_ENV
           echo "DATE1=${{ inputs.DATE1 }}" >> $GITHUB_ENV
           echo "DATE2=${{ inputs.DATE2 }}" >> $GITHUB_ENV
           echo "TIME1=${{ inputs.TIME1 }}" >> $GITHUB_ENV
@@ -58,16 +67,16 @@ jobs:
       - name: Checking whether the file `Time_zone_generation.py` exists
         run: |
           ls -la
-          if [ -f "${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py" ]; then
+          if [ -f "${{ github.workspace }}/time_zone/Time_zone_generation.py" ]; then
             echo "✅ The file Time_zone_generation.py was found."
           else
             echo "❌ Time_zone_generation.py file is missing! Check its location in the repository."
             exit 1
           fi
 
-      - name: Running the script for selected region
+      - name: Running the script for selected region and timezone
         run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$REGION" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
+          python ${{ github.workspace }}/time_zone/Time_zone_generation.py "$REGION" "$TIMEZONE" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
 
       - name: Cache output file
         uses: actions/cache@v4
