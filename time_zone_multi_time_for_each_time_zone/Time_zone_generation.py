@@ -16,7 +16,6 @@ def generate_output():
     TIMEZONE_MAP = {
         "CEST": ZoneInfo("Europe/Warsaw"),
         "CET": ZoneInfo("Europe/Warsaw"),
-        "EMEA": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
         "CHINA": ZoneInfo("Asia/Shanghai"),       # CST for China Standard Time
         "UTC": ZoneInfo("UTC")
@@ -40,7 +39,7 @@ def generate_output():
         return dt.strftime(f"%d.%m.%Y ({calendar.day_name[dt.weekday()]})")
 
     def format_region_output(region, base_tz, start_datetime, end_datetime, time2):
-        region_tz = TIMEZONE_MAP[region] if region in ["EMEA", "AMERICA", "CHINA"] else TIMEZONE_MAP[base_tz]
+        region_tz = TIMEZONE_MAP[base_tz] if region == "EMEA" else TIMEZONE_MAP[region]
         start_dt_region, end_dt_region = convert_timezones(start_datetime, end_datetime, region_tz)
         start_dt_utc, end_dt_utc = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
 
