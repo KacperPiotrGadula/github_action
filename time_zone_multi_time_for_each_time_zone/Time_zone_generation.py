@@ -14,7 +14,6 @@ def generate_output():
 
     # Timezone definitions based on workflow requirements
     TIMEZONE_MAP = {
-        "EMEA": ZoneInfo("Europe/Warsaw"),
         "CEST": ZoneInfo("Europe/Warsaw"),
         "CET": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),  # Handles EST/EDT automatically
