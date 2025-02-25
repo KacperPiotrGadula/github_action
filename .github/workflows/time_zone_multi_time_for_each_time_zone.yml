@@ -1,60 +1,31 @@
-name: Build Banner with Multiple Timezones
+name: Build Banner with Selected Region
 
 on:
   workflow_dispatch:
     inputs:
-      EMEA_TIMEZONE:
-        description: "Enter the time zone for EMEA (CEST or CET)"
+      REGION:
+        description: "Select the region to calculate (EMEA, AMERICA, CHINA)"
         required: true
-        type: string
-      EMEA_DATE1:
-        description: "Enter the first date for EMEA (format: DD.MM.YYYY)"
-        required: true
-        type: string
-      EMEA_DATE2:
-        description: "Enter the second date for EMEA (format: DD.MM.YYYY)"
-        required: true
-        type: string
-      EMEA_TIME1:
-        description: "Enter the first time for EMEA (format: HH:MM)"
-        required: true
-        type: string
-      EMEA_TIME2:
-        description: "Enter the second time for EMEA (format: HH:MM)"
-        required: true
-        type: string
+        type: choice
+        options:
+          - EMEA
+          - AMERICA
+          - CHINA
 
-      AMERICA_DATE1:
-        description: "Enter the first date for America (format: DD.MM.YYYY)"
+      DATE1:
+        description: "Enter the first date (format: DD.MM.YYYY)"
         required: true
         type: string
-      AMERICA_DATE2:
-        description: "Enter the second date for America (format: DD.MM.YYYY)"
+      DATE2:
+        description: "Enter the second date (format: DD.MM.YYYY)"
         required: true
         type: string
-      AMERICA_TIME1:
-        description: "Enter the first time for America (format: HH:MM)"
+      TIME1:
+        description: "Enter the first time (format: HH:MM)"
         required: true
         type: string
-      AMERICA_TIME2:
-        description: "Enter the second time for America (format: HH:MM)"
-        required: true
-        type: string
-
-      CHINA_DATE1:
-        description: "Enter the first date for China (format: DD.MM.YYYY)"
-        required: true
-        type: string
-      CHINA_DATE2:
-        description: "Enter the second date for China (format: DD.MM.YYYY)"
-        required: true
-        type: string
-      CHINA_TIME1:
-        description: "Enter the first time for China (format: HH:MM)"
-        required: true
-        type: string
-      CHINA_TIME2:
-        description: "Enter the second time for China (format: HH:MM)"
+      TIME2:
+        description: "Enter the second time (format: HH:MM)"
         required: true
         type: string
 
@@ -78,43 +49,25 @@ jobs:
 
       - name: Setting environment variables
         run: |
-          echo "EMEA_TIMEZONE=${{ inputs.EMEA_TIMEZONE }}" >> $GITHUB_ENV
-          echo "EMEA_DATE1=${{ inputs.EMEA_DATE1 }}" >> $GITHUB_ENV
-          echo "EMEA_DATE2=${{ inputs.EMEA_DATE2 }}" >> $GITHUB_ENV
-          echo "EMEA_TIME1=${{ inputs.EMEA_TIME1 }}" >> $GITHUB_ENV
-          echo "EMEA_TIME2=${{ inputs.EMEA_TIME2 }}" >> $GITHUB_ENV
-
-          echo "AMERICA_DATE1=${{ inputs.AMERICA_DATE1 }}" >> $GITHUB_ENV
-          echo "AMERICA_DATE2=${{ inputs.AMERICA_DATE2 }}" >> $GITHUB_ENV
-          echo "AMERICA_TIME1=${{ inputs.AMERICA_TIME1 }}" >> $GITHUB_ENV
-          echo "AMERICA_TIME2=${{ inputs.AMERICA_TIME2 }}" >> $GITHUB_ENV
-
-          echo "CHINA_DATE1=${{ inputs.CHINA_DATE1 }}" >> $GITHUB_ENV
-          echo "CHINA_DATE2=${{ inputs.CHINA_DATE2 }}" >> $GITHUB_ENV
-          echo "CHINA_TIME1=${{ inputs.CHINA_TIME1 }}" >> $GITHUB_ENV
-          echo "CHINA_TIME2=${{ inputs.CHINA_TIME2 }}" >> $GITHUB_ENV
+          echo "REGION=${{ inputs.REGION }}" >> $GITHUB_ENV
+          echo "DATE1=${{ inputs.DATE1 }}" >> $GITHUB_ENV
+          echo "DATE2=${{ inputs.DATE2 }}" >> $GITHUB_ENV
+          echo "TIME1=${{ inputs.TIME1 }}" >> $GITHUB_ENV
+          echo "TIME2=${{ inputs.TIME2 }}" >> $GITHUB_ENV
 
       - name: Checking whether the file `Time_zone_generation.py` exists
         run: |
           ls -la
-          if [ -f "${{ github.workspace }}/time_zone/Time_zone_generation.py" ]; then
+          if [ -f "${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py" ]; then
             echo "✅ The file Time_zone_generation.py was found."
           else
             echo "❌ Time_zone_generation.py file is missing! Check its location in the repository."
             exit 1
           fi
 
-      - name: Running the script for EMEA
+      - name: Running the script for selected region
         run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$EMEA_TIMEZONE" "$EMEA_DATE1" "$EMEA_DATE2" "$EMEA_TIME1" "$EMEA_TIME2"
-
-      - name: Running the script for America
-        run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$AMERICA_DATE1" "$AMERICA_DATE2" "$AMERICA_TIME1" "$AMERICA_TIME2"
-
-      - name: Running the script for China
-        run: |
-          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$CHINA_DATE1" "$CHINA_DATE2" "$CHINA_TIME1" "$CHINA_TIME2"
+          python ${{ github.workspace }}/time_zone_multi_time_for_each_time_zone/Time_zone_generation.py "$REGION" "$DATE1" "$DATE2" "$TIME1" "$TIME2"
 
       - name: Cache output file
         uses: actions/cache@v4
