@@ -108,11 +108,14 @@ def generate_output():
 
     # Display of results
     output_lines.append(f"EMEA:")
-    if start_date_banner_UTC == end_date_banner_UTC:
+    if start_date_banner_str == end_date_banner_str and start_date_banner_UTC == end_date_banner_UTC:
         output_lines.append(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone} "
         f"({start_date_banner_UTC} {start_time_UTC_str}  - {end_time_UTC_str} UTC)")
     else:
-        output_lines.append(f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_UTC} {time_zone}" f" ({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
+        if start_date_banner_str == end_date_banner_str and start_date_banner_UTC != end_date_banner_UTC:
+            output_lines.append(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone}" f" ({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
+        else:
+            output_lines.append(f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_UTC} {time_zone}" f" ({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
 
     # ✅ AMERICA z formatem "Feb, 26th, 2025"
     output_lines.append(f"\nAMERICA ({america_timezone_str} ({get_utc_offset(start_time_AMERICA)}), 12h format - A.M./P.M.):")
