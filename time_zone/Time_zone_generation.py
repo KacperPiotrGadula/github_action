@@ -38,6 +38,10 @@ def generate_output():
     start_datetime = parse_datetime(start_date_banner, start_time, TIMEZONE_MAP[time_zone])
 
     if end_time == "24:00":
+        # 24:00 to 00:00 the following dayo
+        end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]) + timedelta(days=1)
+    elif end_time == "00:00" and start_date_banner != end_date_banner:
+        # ✅ If 00:00 is the end of a day other than the start, it marks the start of the next day
         end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]) + timedelta(days=1)
     else:
         end_datetime = parse_datetime(end_date_banner, end_time, TIMEZONE_MAP[time_zone])
