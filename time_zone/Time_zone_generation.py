@@ -108,7 +108,7 @@ def generate_output():
 
     # Display of results
     output_lines.append(f"EMEA:")
-    if start_date_banner_str == end_date_banner_UTC:
+    if start_date_banner_UTC == end_date_banner_UTC:
         output_lines.append(f"{start_date_banner_str}, {start_time_str} - {end_time_str} {time_zone} "
         f"({start_date_banner_UTC} {start_time_UTC_str}  - {end_time_UTC_str} UTC)")
     else:
