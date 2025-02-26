@@ -38,15 +38,7 @@ def generate_output():
     start_datetime = parse_datetime(start_date_banner, start_time, TIMEZONE_MAP[time_zone])
 
     if end_time == "24:00":
-        # 24:00 to 00:00 the following day
         end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]) + timedelta(days=1)
-    elif end_time == "00:00":
-        # ✅ If end_time is 00:00, we check if the end date is different from the start date
-        # If so, 00:00 should be treated as midnight on the following day
-        if parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]).date() != start_datetime.date():
-            end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone])
-        else:
-            end_datetime = parse_datetime(end_date_banner, "00:00", TIMEZONE_MAP[time_zone]) + timedelta(days=1)
     else:
         end_datetime = parse_datetime(end_date_banner, end_time, TIMEZONE_MAP[time_zone])
 
