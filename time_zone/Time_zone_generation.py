@@ -48,12 +48,11 @@ def generate_output():
 
     # Converting to UTC and other time zones
     def convert_timezones(start_dt, end_dt, tz):
-    start = start_dt.astimezone(tz)
-    end = end_dt.astimezone(tz)
-    if end <= start:
-        if start.date() == end.date():
+        start = start_dt.astimezone(tz)
+        end = end_dt.astimezone(tz)
+        if end <= start and start.date() == end.date():
             end += timedelta(days=1)
-    return start, end
+        return start, end
 
     start_time_UTC, end_time_UTC = convert_timezones(start_datetime, end_datetime, TIMEZONE_MAP["UTC"])
     start_time_AMERICA, end_time_AMERICA = convert_timezones(start_time_UTC, end_time_UTC, TIMEZONE_MAP["AMERICA"])
