@@ -81,7 +81,7 @@ def generate_output():
 
     def format_date_american_style(dt):
         day_name = dt.strftime("%A")  # The full name of the day of the week, e.g. “Wednesday”
-        return f"{dt.strftime('%b')}, {format_day_with_suffix(dt.day)}, {dt.year}, {day_name}"
+        return f"{dt.strftime('%b')}, {format_day_with_suffix(dt.day)}, {dt.year} ({day_name})"
 
     # Formatting the results
     start_time_str = start_datetime.strftime("%H:%M")
