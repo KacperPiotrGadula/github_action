@@ -70,6 +70,16 @@ def generate_output():
         day_name = calendar.day_name[dt.weekday()]
         return dt.strftime(f"%d.%m.%Y ({day_name})")
 
+    # ✅ Dodane funkcje do formatowania daty w stylu "Feb, 26th, 2025"
+    def format_day_with_suffix(day):
+        if 11 <= day <= 13:
+            return f"{day}th"
+        suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
+        return f"{day}{suffixes.get(day % 10, 'th')}"
+
+    def format_date_american_style(dt):
+        return dt.strftime("%b") + f", {format_day_with_suffix(dt.day)}, {dt.year}"
+
     # Formatting the results
     start_time_str = start_datetime.strftime("%H:%M")
     end_time_str = "24:00" if end_time == "24:00" else end_datetime.strftime("%H:%M")
@@ -83,8 +93,10 @@ def generate_output():
 
     start_time_AMERICA_str = start_time_AMERICA.strftime("%I:%M %p")
     end_time_AMERICA_str = end_time_AMERICA.strftime("%I:%M %p")
-    start_date_banner_AMERICA = format_date_with_day(start_time_AMERICA)
-    end_date_banner_AMERICA = format_date_with_day(end_time_AMERICA)
+
+    # ✅ Zmienione tylko tutaj - użycie nowej funkcji formatowania daty
+    start_date_banner_AMERICA = format_date_american_style(start_time_AMERICA)
+    end_date_banner_AMERICA = format_date_american_style(end_time_AMERICA)
 
     start_time_CHINA_str = start_time_CHINA.strftime("%I:%M %p")
     end_time_CHINA_str = end_time_CHINA.strftime("%I:%M %p")
@@ -99,7 +111,7 @@ def generate_output():
     else:
         output_lines.append(f"{start_time_str} {start_date_banner_str} - {end_time_str} {end_date_banner_UTC} {time_zone}" f" ({start_time_UTC_str} {start_date_banner_UTC} - {end_time_UTC_str} {end_date_banner_UTC} UTC)")
 
-    # Display of additional time zones with proper date adjustments
+    # ✅ AMERICA z formatem "Feb, 26th, 2025"
     output_lines.append(f"\nAMERICA ({america_timezone_str} ({get_utc_offset(start_time_AMERICA)}), 12h format - A.M./P.M.):")
     if start_date_banner_AMERICA == end_date_banner_AMERICA:
         output_lines.append(f"{start_date_banner_AMERICA}, {start_time_AMERICA_str} - {end_time_AMERICA_str} {america_timezone_str}")
@@ -111,7 +123,6 @@ def generate_output():
         output_lines.append(f"{start_date_banner_CHINA}, {start_time_CHINA_str} - {end_time_CHINA_str} {china_timezone_str}")
     else:
         output_lines.append(f"{start_time_CHINA_str} {start_date_banner_CHINA} - {end_time_CHINA_str} {end_date_banner_CHINA} {china_timezone_str}")
-
 
     # Scal całość do jednej zmiennej
     output_content = "\n".join(output_lines)
