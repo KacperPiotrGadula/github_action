@@ -16,8 +16,10 @@ def generate_output():
 
     # Timezone definitions
     TIMEZONE_MAP = {
-        "CEST": ZoneInfo("Europe/Warsaw"),
-        "CET": ZoneInfo("Europe/Warsaw"),
+        "CEST": timezone(timedelta(hours=2)),  # UTC+2 - daylight saving time
+        "CET": timezone(timedelta(hours=1)),   # UTC+1 - standard time
+        #"CEST": ZoneInfo("Europe/Warsaw"),
+        #"CET": ZoneInfo("Europe/Warsaw"),
         "AMERICA": ZoneInfo("America/New_York"),
         "CHINA": ZoneInfo("Asia/Shanghai"),
         "UTC": ZoneInfo("UTC")
@@ -78,7 +80,8 @@ def generate_output():
         return f"{day}{suffixes.get(day % 10, 'th')}"
 
     def format_date_american_style(dt):
-        return dt.strftime("%b") + f", {format_day_with_suffix(dt.day)}, {dt.year}"
+        day_name = dt.strftime("%A")  # The full name of the day of the week, e.g. “Wednesday”
+        return f"{dt.strftime('%b')} {day_name}, {format_day_with_suffix(dt.day)}, {dt.year}"
 
     # Formatting the results
     start_time_str = start_datetime.strftime("%H:%M")
